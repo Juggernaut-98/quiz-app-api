@@ -19,7 +19,8 @@ export default (sequelize, DataTypes) => {
   }
   Quiz.init({
     title: DataTypes.STRING,
-    description: DataTypes.TEXT
+    description: DataTypes.TEXT,
+    isPublished: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'Quiz',
