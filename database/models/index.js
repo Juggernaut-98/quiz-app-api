@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import Sequelize from 'sequelize';
 import process from 'process';
-import config from '../config/config.js'
+import config from '../config/config.js';
 import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,12 +13,7 @@ const __dirname = path.dirname(__filename);
 const env = process.env.NODE_ENV || 'development';
 const db = {};
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
-}
+const sequelize = new Sequelize(config.url, config);
 
 fs
   .readdirSync(__dirname)
@@ -30,8 +25,9 @@ fs
       file.indexOf('.test.js') === -1
     );
   })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
+  .forEach(async file => {
+    const klass = await import(path.join(__dirname, file));
+    const model = klass.default(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 
