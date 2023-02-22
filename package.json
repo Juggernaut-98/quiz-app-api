@@ -1,0 +1,30 @@
+{
+  "name": "quiz-app-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "NODE_PATH=./ nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juggernaut-98/quiz-app-api.git"
+  },
+  "author": "Tayyab athar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Juggernaut-98/quiz-app-api/issues"
+  },
+  "homepage": "https://github.com/Juggernaut-98/quiz-app-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "simple-node-logger": "^21.8.12"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
