@@ -15,6 +15,9 @@ module.exports = {
       quizId: {
         type: Sequelize.INTEGER
       },
+      isMandatory: {
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

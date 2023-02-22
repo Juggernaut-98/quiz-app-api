@@ -25,6 +25,7 @@ export default (sequelize, DataTypes) => {
   }
   Question.init({
     description: DataTypes.STRING,
+    isMandatory: DataTypes.BOOLEAN,
     quizId: DataTypes.INTEGER
   }, {
     sequelize,
