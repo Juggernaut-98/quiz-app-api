@@ -27,47 +27,46 @@ const validatePayload = (payload) => {
     let validOptions = true;
     let inValidCorrectOptions = true;
 
-    payload.questions.forEach(question=>{
-        if(!question.description){
+    payload.questions.forEach((question) => {
+        if (!question.description) {
             validQuestions = false;
         }
 
         let numberOfCorrectOptions = 0;
-        question.options.forEach((option)=>{
-            if(!option.value){
+        question.options.forEach((option) => {
+            if (!option.value) {
                 validOptions = false;
             }
             numberOfCorrectOptions += option.isCorrect ? 1 : 0;
-        })
+        });
 
-        inValidCorrectOptions = inValidCorrectOptions && (numberOfCorrectOptions === 1);
+        inValidCorrectOptions = inValidCorrectOptions && numberOfCorrectOptions === 1;
     });
 
     if (!validQuestions) {
         errors = {
             ...errors,
             question: 'Some questions are missing descriptions.',
-        }
+        };
     }
 
-    if(!inValidCorrectOptions){
+    if (!inValidCorrectOptions) {
         errors = {
             ...errors,
             question: 'Some questions have invalid number(>1 or 0) of correct options.',
-        }
+        };
     }
     if (!validOptions) {
         errors = {
             ...errors,
             option: 'Some options are missing  values.',
-        }
+        };
     }
     if (Object.keys(errors).length === 0) {
         return null;
     }
     return errors;
 };
-
 
 const publishQuiz = async (id) => {
     const { Quiz } = db;
@@ -84,7 +83,7 @@ const publishQuiz = async (id) => {
     return {
         status: 200,
         responseData: result,
-    };;
+    };
 };
 
 const createQuiz = async (payload) => {
@@ -108,7 +107,7 @@ const createQuiz = async (payload) => {
             { transaction: t },
         );
         await Promise.all(
-            payload.questions.map(async questionPayload=>{
+            payload.questions.map(async (questionPayload) => {
                 const question = await Question.create(
                     {
                         description: questionPayload.description,
@@ -118,7 +117,7 @@ const createQuiz = async (payload) => {
                     { transaction: t },
                 );
                 await Promise.all(
-                    questionPayload.options.map(async option=>{
+                    questionPayload.options.map(async (option) => {
                         await Option.create(
                             {
                                 value: option.value,
@@ -127,10 +126,10 @@ const createQuiz = async (payload) => {
                             },
                             { transaction: t },
                         );
-                    })
-                )
-            })
-        )
+                    }),
+                );
+            }),
+        );
     });
     return {
         status: 200,
@@ -148,8 +147,8 @@ const getQuiz = async (id) => {
                 required: false,
                 include: {
                     model: Option,
-                    as: 'options'
-                }
+                    as: 'options',
+                },
             },
         ],
     });
@@ -166,4 +165,52 @@ const getQuiz = async (id) => {
     };
 };
 
-export { createQuiz, getQuiz, publishQuiz };
+const evaluateResult = async (id, payload) => {
+    const { Quiz, Question, Option } = db;
+    const result = await Quiz.findByPk(id, {
+        include: [
+            {
+                model: Question,
+                as: 'questions',
+                required: false,
+            },
+        ],
+    });
+
+    if (!result) {
+        return {
+            status: 404,
+            responseData: `No Quiz exist against the id ${id}.`,
+        };
+    }
+
+    let numberOfCorrectAnswers = 0;
+
+    let isError = false;
+    await Promise.all(
+        result.questions.map(async (question) => {
+            if (question.isMandatory && !payload[question.id]) {
+                isError = true;
+            }
+
+            const option = await Option.findByPk(payload[question.id]);
+
+            if (option && option.questionId === question.id && option.isCorrect) {
+                numberOfCorrectAnswers++;
+            }
+        }),
+    );
+
+    if (isError) {
+        return {
+            status: 400,
+            responseData: `All mandatory questions are not attempted. Please try again.`,
+        };
+    }
+    return {
+        status: 200,
+        responseData: `You attempted ${numberOfCorrectAnswers} correct questions out of ${result.questions.length}.`,
+    };
+};
+
+export { createQuiz, getQuiz, publishQuiz, evaluateResult };

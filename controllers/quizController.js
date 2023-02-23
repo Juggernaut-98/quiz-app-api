@@ -1,6 +1,6 @@
 import express from 'express';
 import createResponse from '../services/createResponse.js';
-import { createQuiz, getQuiz, publishQuiz } from '../services/quizServices.js';
+import { createQuiz, getQuiz, publishQuiz, evaluateResult } from '../services/quizServices.js';
 
 const router = express.Router();
 
@@ -19,6 +19,14 @@ router.get('/:id', async (req, res) => {
 router.post('/:id/publish', async (req, res) => {
     const { id } = req.params;
     const response = await publishQuiz(id);
+    return createResponse(res,response);
+});
+
+
+router.post('/:id/evaluateResult', async (req, res) => {
+    const { id } = req.params;
+    const payload = req.body;
+    const response = await evaluateResult(id, payload);
     return createResponse(res,response);
 });
 
