@@ -1,6 +1,6 @@
 import express from 'express';
 import createResponse from '../services/createResponse.js';
-import { createQuiz, getQuiz } from '../services/quizServices.js';
+import { createQuiz, getQuiz, publishQuiz } from '../services/quizServices.js';
 
 const router = express.Router();
 
@@ -16,8 +16,9 @@ router.get('/:id', async (req, res) => {
     return createResponse(res,response);
 });
 
-router.put('/:id', async (req, res) => {
-    const response = await createQuiz(req.body);
+router.post('/:id/publish', async (req, res) => {
+    const { id } = req.params;
+    const response = await publishQuiz(id);
     return createResponse(res,response);
 });
 

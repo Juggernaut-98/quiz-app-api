@@ -23,6 +23,45 @@ const validatePayload = (payload) => {
         };
     }
 
+    let validQuestions = true;
+    let validOptions = true;
+    let inValidCorrectOptions = true;
+
+    payload.questions.forEach(question=>{
+        if(!question.description){
+            validQuestions = false;
+        }
+
+        let numberOfCorrectOptions = 0;
+        question.options.forEach((option)=>{
+            if(!option.value){
+                validOptions = false;
+            }
+            numberOfCorrectOptions += option.isCorrect ? 1 : 0;
+        })
+
+        inValidCorrectOptions = inValidCorrectOptions && (numberOfCorrectOptions === 1);
+    });
+
+    if (!validQuestions) {
+        errors = {
+            ...errors,
+            question: 'Some questions are missing descriptions.',
+        }
+    }
+
+    if(!inValidCorrectOptions){
+        errors = {
+            ...errors,
+            question: 'Some questions have invalid number(>1 or 0) of correct options.',
+        }
+    }
+    if (!validOptions) {
+        errors = {
+            ...errors,
+            option: 'Some options are missing  values.',
+        }
+    }
     if (Object.keys(errors).length === 0) {
         return null;
     }
@@ -30,10 +69,27 @@ const validatePayload = (payload) => {
 };
 
 
-const createQuiz = async (payload, id = null) => {
+const publishQuiz = async (id) => {
+    const { Quiz } = db;
+    const result = await Quiz.findByPk(id);
+
+    if (!result) {
+        return {
+            status: 404,
+            responseData: 'No result found',
+        };
+    }
+    result.isPublished = true;
+    await result.save();
+    return {
+        status: 200,
+        responseData: result,
+    };;
+};
+
+const createQuiz = async (payload) => {
     const validationResult = validatePayload(payload);
 
-    console.log(validationResult);
     if (validationResult) {
         return {
             status: 400,
@@ -43,7 +99,7 @@ const createQuiz = async (payload, id = null) => {
 
     let result;
     await db.sequelize.transaction(async (t) => {
-        const { Quiz } = db;
+        const { Quiz, Question, Option } = db;
         result = await Quiz.create(
             {
                 title: payload.title,
@@ -51,21 +107,49 @@ const createQuiz = async (payload, id = null) => {
             },
             { transaction: t },
         );
+        await Promise.all(
+            payload.questions.map(async questionPayload=>{
+                const question = await Question.create(
+                    {
+                        description: questionPayload.description,
+                        isMandatory: !!questionPayload.isMandatory,
+                        quizId: result.id,
+                    },
+                    { transaction: t },
+                );
+                await Promise.all(
+                    questionPayload.options.map(async option=>{
+                        await Option.create(
+                            {
+                                value: option.value,
+                                isCorrect: !!option.isCorrect,
+                                questionId: question.id,
+                            },
+                            { transaction: t },
+                        );
+                    })
+                )
+            })
+        )
     });
     return {
         status: 200,
-        responseData: result,
+        responseData: await getQuiz(result.id),
     };
 };
 
 const getQuiz = async (id) => {
-    const { Quiz, Question } = db;
+    const { Quiz, Question, Option } = db;
     const result = await Quiz.findByPk(id, {
         include: [
             {
                 model: Question,
                 as: 'questions',
                 required: false,
+                include: {
+                    model: Option,
+                    as: 'options'
+                }
             },
         ],
     });
@@ -82,4 +166,4 @@ const getQuiz = async (id) => {
     };
 };
 
-export { createQuiz, getQuiz };
+export { createQuiz, getQuiz, publishQuiz };
