@@ -13,7 +13,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       quizId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       isMandatory: {
         type: Sequelize.BOOLEAN
