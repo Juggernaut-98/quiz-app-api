@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node index.js"
+    "server": "NODE_PATH=./ nodemon index.js"
   },
   "repository": {
     "type": "git",
