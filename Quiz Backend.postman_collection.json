@@ -1,0 +1,141 @@
+{
+	"info": {
+		"_postman_id": "ffaf8a19-f781-45dd-9bb9-f355b83dd90e",
+		"name": "Quiz Backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}",
+					"host": [
+						"{{BASE_URL}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Quiz",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isPublished\": true,\n    \"title\": \"First quiz\",\n    \"description\": \"quiz description\",\n    \"questions\": [\n        {\n            \"description\": \"First question\",\n            \"isMandatory\": true,\n            \"options\": [\n                {\n                   \"value\": \"Option 1\",\n                   \"isCorrect\": true \n                },\n                {\n                   \"value\": \"Option 1\",\n                    \"isCorrect\": false \n                }\n            ]\n        },\n        {\n            \"description\": \"Second question\",\n            \"options\": [\n                {\n                   \"value\": \"Option 1\",\n                   \"isCorrect\": true \n                },\n                {\n                   \"value\": \"Option 1\",\n                    \"isCorrect\": false \n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}api/quiz",
+					"host": [
+						"{{BASE_URL}}api"
+					],
+					"path": [
+						"quiz"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Quiz",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}api/quiz/5",
+					"host": [
+						"{{BASE_URL}}api"
+					],
+					"path": [
+						"quiz",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Quiz",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{BASE_URL}}api/quiz/2/publish",
+					"host": [
+						"{{BASE_URL}}api"
+					],
+					"path": [
+						"quiz",
+						"2",
+						"publish"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AttemptQuiz",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"8\": \"3\",\n    \"7\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BASE_URL}}api/quiz/5/evaluateResult",
+					"host": [
+						"{{BASE_URL}}api"
+					],
+					"path": [
+						"quiz",
+						"5",
+						"evaluateResult"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BASE_URL",
+			"value": "http://localhost:8000/",
+			"type": "default"
+		}
+	]
+}
